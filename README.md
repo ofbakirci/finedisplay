@@ -21,10 +21,10 @@ Made by [nousworks](https://nousworks.co) · [finedisplay.nousworks.co](https://
 
 1. Download `FineDisplay-x.y.z.zip` from [finedisplay.nousworks.co](https://finedisplay.nousworks.co) or the GitHub releases page.
 2. Unzip. Move `FineDisplay.app` to `/Applications`.
-3. Open it. On first launch macOS may say it "cannot verify" the app: open **System Settings → Privacy & Security**, scroll down, click **Open Anyway**.
+3. Open it. The app is notarized by Apple; it opens without warnings.
 4. Click the monitor icon in the menu bar. Pick a HiDPI mode for your external display.
 
-The app is signed with a Developer ID. It is not sandboxed because it talks to WindowServer directly.
+The app is signed with a Developer ID and notarized. It is not sandboxed because it talks to WindowServer directly.
 
 ## Command line
 
