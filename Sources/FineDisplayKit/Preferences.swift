@@ -2,7 +2,7 @@ import Foundation
 
 /// Saved mode choices, keyed by display UUID. Shared by the app and the CLI.
 public final class Preferences {
-    public static let suiteName = "co.nousworks.finedisplay"
+    public static let suiteName = "co.nousworks.finedisplay.prefs"
     public static let shared = Preferences()
 
     private let defaults: UserDefaults

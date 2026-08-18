@@ -1,16 +1,16 @@
 # finedisplay.nousworks.co — FineDisplay tanıtım + indirme sayfası (/srv/static/finedisplay).
 # Kaynak: apps_ofb/finedisplay/site — deploy: scripts/deploy-site.sh
-# DNS A kaydı (finedisplay → 78.142.211.44) düşene kadar #LIVE# önekli kalır.
+# DNS A kaydı finedisplay → 78.142.211.44 (2026-08-19 eklendi).
 
-#LIVE#finedisplay.nousworks.co {
-#LIVE#	root * /srv/static/finedisplay
-#LIVE#	encode gzip
-#LIVE#
-#LIVE#	@tazele path / /index.html /en/ /en/index.html /style.css /dl/SHA256SUMS
-#LIVE#	header @tazele Cache-Control "no-cache"
-#LIVE#	header /icon.png Cache-Control "public, max-age=86400"
-#LIVE#	header /dl/*.zip Cache-Control "public, max-age=3600"
-#LIVE#	header /dl/*.zip Content-Disposition "attachment"
-#LIVE#
-#LIVE#	file_server
-#LIVE#}
+finedisplay.nousworks.co {
+	root * /srv/static/finedisplay
+	encode gzip
+
+	@tazele path / /index.html /en/ /en/index.html /style.css /dl/SHA256SUMS
+	header @tazele Cache-Control "no-cache"
+	header /icon.png Cache-Control "public, max-age=86400"
+	header /dl/*.zip Cache-Control "public, max-age=3600"
+	header /dl/*.zip Content-Disposition "attachment"
+
+	file_server
+}

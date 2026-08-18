@@ -9,7 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard SkyLight_isAvailable() else {
             let alert = NSAlert()
             alert.messageText = "FineDisplay cannot run on this macOS build"
-            alert.informativeText = "The WindowServer functions it relies on did not resolve. Check nousworks.co/finedisplay for an update."
+            alert.informativeText = "The WindowServer functions it relies on did not resolve. Check finedisplay.nousworks.co for an update."
             alert.runModal()
             NSApp.terminate(nil)
             return

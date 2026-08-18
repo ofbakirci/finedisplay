@@ -5,6 +5,6 @@ public func SkyLight_isAvailable() -> Bool { SkyLight.isAvailable }
 
 public enum FineDisplayInfo {
     public static let version = "1.0.0"
-    public static let website = URL(string: "https://nousworks.co/finedisplay/")!
+    public static let website = URL(string: "https://finedisplay.nousworks.co/")!
     public static let bundleIdentifier = "co.nousworks.finedisplay"
 }

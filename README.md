@@ -7,7 +7,7 @@ displays and then hides them. FineDisplay shows those modes and switches to them
 displays, no mirroring, no system files, no reboot. It is the same native pipeline your
 MacBook's built-in Retina display uses.
 
-Made by [nousworks](https://nousworks.co) · [nousworks.co/finedisplay](https://nousworks.co/finedisplay)
+Made by [nousworks](https://nousworks.co) · [finedisplay.nousworks.co](https://finedisplay.nousworks.co)
 
 ## What you get
 
@@ -19,7 +19,7 @@ Made by [nousworks](https://nousworks.co) · [nousworks.co/finedisplay](https://
 
 ## Install
 
-1. Download `FineDisplay-x.y.z.zip` from [nousworks.co/finedisplay](https://nousworks.co/finedisplay) or the GitHub releases page.
+1. Download `FineDisplay-x.y.z.zip` from [finedisplay.nousworks.co](https://finedisplay.nousworks.co) or the GitHub releases page.
 2. Unzip. Move `FineDisplay.app` to `/Applications`.
 3. Open it. On first launch macOS may say it "cannot verify" the app: open **System Settings → Privacy & Security**, scroll down, click **Open Anyway**.
 4. Click the monitor icon in the menu bar. Pick a HiDPI mode for your external display.

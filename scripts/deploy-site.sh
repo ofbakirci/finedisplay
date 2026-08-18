@@ -8,7 +8,7 @@ cd "$ROOT"
 HOST="${DEPLOY_HOST:-nus}"
 DEST="/srv/static/finedisplay"
 
-[[ -f site/dl/FineDisplay-*.zip(#qN[1]) ]] || { echo "site/dl is empty — run scripts/build-app.sh && scripts/build-site.sh first"; exit 1; }
+ls site/dl/FineDisplay-*.zip >/dev/null 2>&1 || { echo "site/dl is empty — run scripts/build-app.sh && scripts/build-site.sh first"; exit 1; }
 
 echo "▸ rsync site/ → $HOST:$DEST"
 ssh "$HOST" "mkdir -p $DEST"
