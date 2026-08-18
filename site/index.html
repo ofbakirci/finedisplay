@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FineDisplay — macOS'un sakladığı HiDPI modlarını aç</title>
+<meta name="description" content="Harici ekranında macOS'un ürettiği ama listeden gizlediği HiDPI (Retina) modlarını tek tıkla açan ücretsiz, açık kaynak menü çubuğu uygulaması. Sanal ekran yok, mirror yok, sistem dosyası yok.">
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="alternate" hreflang="en" href="https://finedisplay.nousworks.co/en/">
+<link rel="alternate" hreflang="tr" href="https://finedisplay.nousworks.co/">
+<meta property="og:title" content="FineDisplay — macOS'un sakladığı HiDPI modlarını aç">
+<meta property="og:description" content="Harici ekranın için ücretsiz, native HiDPI. Tek tık.">
+<meta property="og:image" content="https://finedisplay.nousworks.co/icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+    <img class="logo" src="icon.png" width="128" height="128" alt="FineDisplay simgesi: el çizimi monitör ve parıltılar">
+    <h1>FineDisplay</h1>
+    <div class="tagline">macOS'un sakladığı HiDPI modlarını aç</div>
+    <p class="pitch">Harici ekranın için "1920×1200 gibi görünsün" seçeneği yok mu?
+    Aslında var. macOS o modu üretmiş, sonra listeden gizlemiş. FineDisplay
+    listeyi açar, sen seçersin. Sanal ekran yok, mirror yok, sistem dosyası yok,
+    yeniden başlatma yok. Ücretsiz ve açık kaynak.</p>
+    <div class="cta">
+      <a class="btn primary" href="dl/FineDisplay-1.0.0.zip">İndir — FineDisplay 1.0.0</a>
+      <a class="btn ghost" href="#kurulum">Kurulum</a>
+      <a class="btn ghost" href="#nasil">Nasıl çalışır?</a>
+      <a class="btn ghost" href="https://github.com/ofbakirci/finedisplay">GitHub</a>
+    </div>
+    <p class="meta">macOS 13+ · Apple Silicon ve Intel · Developer ID imzalı · MIT lisansı · <a href="en/">English</a></p>
+  </section>
+
+  <div class="shot" aria-label="FineDisplay menüsü örneği">
+    <div class="menu">
+      <div class="menu-title">ARZOPA</div>
+      <div class="menu-item"><span class="tick"></span>2560 × 1600 &nbsp;HiDPI <span class="dim">5120×3200</span> <span class="star">★</span></div>
+      <div class="menu-item current"><span class="tick">✓</span>2048 × 1280 &nbsp;HiDPI <span class="dim">4096×2560</span> <span class="star">★</span></div>
+      <div class="menu-item"><span class="tick"></span>1920 × 1200 &nbsp;HiDPI <span class="dim">3840×2400</span> <span class="star">★</span></div>
+      <div class="menu-item"><span class="tick"></span>1600 × 1000 &nbsp;HiDPI <span class="dim">3200×2000</span> <span class="star">★</span></div>
+      <div class="menu-item"><span class="tick"></span>1280 × 800 &nbsp;HiDPI <span class="dim">2560×1600</span></div>
+      <div class="menu-item sub"><span class="tick"></span>Low Resolution <span class="chev">›</span></div>
+      <div class="menu-note">Panel 2560×1600 · 9 unlocked</div>
+      <div class="menu-sep"></div>
+      <div class="menu-item"><span class="tick"></span>Re-apply Saved Modes</div>
+      <div class="menu-item"><span class="tick">✓</span>Launch at Login</div>
+      <div class="menu-sep"></div>
+      <div class="menu-item"><span class="tick"></span>Quit FineDisplay</div>
+    </div>
+    <p class="shot-caption">★ = Apple'ın ürettiği ama sakladığı modlar. Arzopa Z1RC (16", 2560×1600) örneği.</p>
+  </div>
+
+  <section class="cards">
+    <div class="card">
+      <h2>Native, dolambaçsız</h2>
+      <p>Hayalet ekran yaratıp görüntüyü kopyalamaz. macOS'un kendi mod tablosundaki
+      satıra geçer; masaüstü <b>2×</b> çizilir, GPU panele indirir. MacBook'un
+      dahili Retina ekranındaki mekanizmanın <b>birebir aynısı</b>.</p>
+    </div>
+    <div class="card">
+      <h2>Hatırlar</h2>
+      <p>Seçimini ekrana özel saklar. Ekranı çıkarıp taktığında ya da Mac
+      uyandığında <b>kendisi yeniden uygular</b>. İstersen girişte açılır.</p>
+    </div>
+    <div class="card">
+      <h2>Komut satırı da var</h2>
+      <p><code>finedisplay list</code> ile tabloyu gör, <code>finedisplay set 2 1920x1200</code>
+      ile geç. Script'lere, otomasyona uygun.</p>
+    </div>
+    <div class="card">
+      <h2>Ücretsiz, açık, dürüst</h2>
+      <p>MIT lisansı. Reklam yok, hesap yok, "Pro" yok. Ne yaptığı ve nasıl yaptığı
+      <a href="#nasil">aşağıda</a> ve <a href="https://github.com/ofbakirci/finedisplay">kaynak kodda</a>.</p>
+    </div>
+  </section>
+
+  <section class="how" id="nasil">
+    <h2>Nasıl çalışır?</h2>
+    <p>Her ekranın WindowServer içinde bir mod tablosu var. 2560×1600 bir panel için
+    macOS <b>1920×1200 @2x</b>, <b>2048×1280 @2x</b> gibi modları üretiyor — sonra bunlara
+    <code>kDisplayModeValidForMirroringFlag</code> bayrağını basıp herkese açık API'den
+    döndürmüyor. Sistem Ayarları da o yüzden yalnız panel boyutuna kadar olan seçenekleri
+    gösteriyor. Panel bunu kaldırır; eşik Apple'ın tercihi.</p>
+    <p>FineDisplay tabloyu WindowServer'ın kendi çağrılarıyla (SkyLight
+    <code>CGSGetDisplayModeDescriptionOfLength</code>) okur, seçtiğin moda
+    <code>CGSConfigureDisplayMode</code> ile geçer. WindowServer kabul eder, gerisi macOS'un
+    standart Retina boru hattı. Apple'ın 13" MacBook Air (aynı 2560×1600 panel) için
+    gönderdiği override dosyası da aynı bayraklarla aynı çözünürlükleri listeliyor.</p>
+    <p class="fine">Ayrıntılı inceleme günlüğü:
+    <a href="https://github.com/ofbakirci/finedisplay/blob/main/docs/how-it-works.md">docs/how-it-works.md</a></p>
+  </section>
+
+  <section class="rules">
+    <h2>Açık konuşalım</h2>
+    <ul>
+      <li><b>Özel API kullanır.</b> Apple bir gün değiştirebilir. Uygulama açılışta
+        sembolleri denetler; yoksa çalışmaz, ekranını bozmaz.</li>
+      <li><b>Yalnız var olan modları açar.</b> macOS o ekran için gizli HiDPI modu
+        üretmediyse FineDisplay uyduramaz. <code>finedisplay list</code> ★ göstermiyorsa
+        BetterDisplay'in sanal ekran yolu hâlâ seçenek.</li>
+      <li><b>GPU'ya iş çıkarır.</b> 4096×2560 çizmek bedava değil. Apple Silicon hissetmez;
+        eski Intel GPU'larda titreme olabilir.</li>
+      <li class="w"><b>Sistem Ayarları'ndan mod değiştirirsen</b> bir sonraki bağlantıya kadar o
+        geçerli olur. Kalıcı olsun istediğin modu FineDisplay'den seç.</li>
+    </ul>
+  </section>
+
+  <section class="changelog" id="degisiklikler">
+    <h2>Sürüm notları</h2>
+    <div class="release-list">
+      <article class="release current">
+        <div class="release-head">
+          <h3><a href="dl/FineDisplay-1.0.0.zip">v1.0.0</a><span class="badge">güncel</span></h3>
+          <time datetime="2026-08-19">19 Ağustos 2026</time>
+        </div>
+        <ul>
+          <li>İlk yayın: gizli HiDPI modlarını listeleyip geçen menü çubuğu uygulaması.</li>
+          <li>Ekran başına seçim hafızası; yeniden bağlanınca ve uyanınca otomatik uygulama.</li>
+          <li>Girişte açılma seçeneği; <code>finedisplay</code> komut satırı aracı.</li>
+          <li>Universal binary (Apple Silicon + Intel), macOS 13+. macOS 15.7 Sequoia'da doğrulandı.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="install" id="kurulum">
+    <h2>Kurulum</h2>
+    <ol class="steps">
+      <li><a href="dl/FineDisplay-1.0.0.zip">FineDisplay-1.0.0.zip</a> dosyasını indir, aç, <b>FineDisplay.app</b>'i Uygulamalar klasörüne taşı.</li>
+      <li>Aç. macOS "doğrulanamıyor" derse: <b>Sistem Ayarları → Gizlilik ve Güvenlik</b>, en alta in, <b>Yine de Aç</b>.</li>
+      <li>Menü çubuğundaki monitör simgesine tıkla. Harici ekranın için ★'lı bir HiDPI mod seç. Bitti.</li>
+    </ol>
+    <p><b style="color:#fff">Komut satırı:</b> uygulamanın içinde
+    <code>FineDisplay.app/Contents/Resources/bin/finedisplay</code>, ya da ayrı zip:
+    <a href="dl/finedisplay-cli-1.0.0.zip">finedisplay-cli-1.0.0.zip</a></p>
+<pre><code>finedisplay list                 <span class="c"># ekranlar ve modlar; ★ = gizli HiDPI</span>
+finedisplay set 2 1920x1200      <span class="c"># 1920×1200 gibi görünsün, 3840×2400 çizilsin</span>
+finedisplay set 2 2048x1280 --hz 60
+finedisplay apply                <span class="c"># kayıtlı seçimleri şimdi uygula</span></code></pre>
+    <p><b style="color:#fff">Kaynaktan derleme:</b></p>
+<pre><code>git clone https://github.com/ofbakirci/finedisplay
+cd finedisplay
+swift build -c release
+scripts/build-app.sh             <span class="c"># dist/FineDisplay.app</span></code></pre>
+    <p class="note">SHA-256 özetleri: <a href="dl/SHA256SUMS">SHA256SUMS</a></p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <a href="https://nousworks.co">nousworks</a> yapımı ·
+    <a href="https://github.com/ofbakirci/finedisplay">ofbakirci/finedisplay</a> ·
+    simgeler: <a href="https://koboyo.com">koboyo</a> el çizimi ikonlar
+  </div>
+</footer>
+
+</body>
+</html>

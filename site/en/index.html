@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FineDisplay — unlock the HiDPI modes macOS hides</title>
+<meta name="description" content="Free, open-source menu bar app that reveals and enables the HiDPI (Retina) modes macOS builds for your external display and then hides. No virtual display, no mirroring, no system files.">
+<link rel="icon" href="../icon.png" type="image/png">
+<link rel="alternate" hreflang="tr" href="https://finedisplay.nousworks.co/">
+<link rel="alternate" hreflang="en" href="https://finedisplay.nousworks.co/en/">
+<meta property="og:title" content="FineDisplay — unlock the HiDPI modes macOS hides">
+<meta property="og:description" content="Free native HiDPI for your external display. One click.">
+<meta property="og:image" content="https://finedisplay.nousworks.co/icon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+    <img class="logo" src="../icon.png" width="128" height="128" alt="FineDisplay icon: hand-drawn monitor with sparkles">
+    <h1>FineDisplay</h1>
+    <div class="tagline">Unlock the HiDPI modes macOS hides</div>
+    <p class="pitch">No "looks like 1920×1200" option for your external display?
+    There is one. macOS built it, then hid it. FineDisplay shows the list and lets you pick.
+    No virtual display, no mirroring, no system files, no reboot. Free and open source.</p>
+    <div class="cta">
+      <a class="btn primary" href="../dl/FineDisplay-1.0.0.zip">Download — FineDisplay 1.0.0</a>
+      <a class="btn ghost" href="#install">Install</a>
+      <a class="btn ghost" href="#how">How it works</a>
+      <a class="btn ghost" href="https://github.com/ofbakirci/finedisplay">GitHub</a>
+    </div>
+    <p class="meta">macOS 13+ · Apple Silicon and Intel · Developer ID signed · MIT license · <a href="../">Türkçe</a></p>
+  </section>
+
+  <div class="shot" aria-label="FineDisplay menu example">
+    <div class="menu">
+      <div class="menu-title">ARZOPA</div>
+      <div class="menu-item"><span class="tick"></span>2560 × 1600 &nbsp;HiDPI <span class="dim">5120×3200</span> <span class="star">★</span></div>
+      <div class="menu-item current"><span class="tick">✓</span>2048 × 1280 &nbsp;HiDPI <span class="dim">4096×2560</span> <span class="star">★</span></div>
+      <div class="menu-item"><span class="tick"></span>1920 × 1200 &nbsp;HiDPI <span class="dim">3840×2400</span> <span class="star">★</span></div>
+      <div class="menu-item"><span class="tick"></span>1600 × 1000 &nbsp;HiDPI <span class="dim">3200×2000</span> <span class="star">★</span></div>
+      <div class="menu-item"><span class="tick"></span>1280 × 800 &nbsp;HiDPI <span class="dim">2560×1600</span></div>
+      <div class="menu-item sub"><span class="tick"></span>Low Resolution <span class="chev">›</span></div>
+      <div class="menu-note">Panel 2560×1600 · 9 unlocked</div>
+      <div class="menu-sep"></div>
+      <div class="menu-item"><span class="tick"></span>Re-apply Saved Modes</div>
+      <div class="menu-item"><span class="tick">✓</span>Launch at Login</div>
+      <div class="menu-sep"></div>
+      <div class="menu-item"><span class="tick"></span>Quit FineDisplay</div>
+    </div>
+    <p class="shot-caption">★ = modes Apple generated and hid. Example: Arzopa Z1RC (16", 2560×1600).</p>
+  </div>
+
+  <section class="cards">
+    <div class="card">
+      <h2>Native, no detour</h2>
+      <p>No ghost display, no copied frames. FineDisplay switches to a row that is already in
+      macOS's own mode table. The desktop renders at <b>2×</b>, the GPU scales to the panel.
+      <b>The same mechanism</b> your MacBook's built-in Retina display uses.</p>
+    </div>
+    <div class="card">
+      <h2>Remembers</h2>
+      <p>Your choice is stored per display. When you replug the display or the Mac wakes,
+      FineDisplay <b>re-applies it</b>. Launch at login is optional.</p>
+    </div>
+    <div class="card">
+      <h2>Command line included</h2>
+      <p><code>finedisplay list</code> shows the table, <code>finedisplay set 2 1920x1200</code>
+      switches. Good for scripts and automation.</p>
+    </div>
+    <div class="card">
+      <h2>Free, open, honest</h2>
+      <p>MIT license. No ads, no account, no "Pro" tier. What it does and how is
+      <a href="#how">below</a> and <a href="https://github.com/ofbakirci/finedisplay">in the source</a>.</p>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <h2>How it works</h2>
+    <p>Every display has a mode table inside WindowServer. For a 2560×1600 panel macOS
+    generates modes such as <b>1920×1200 @2x</b> and <b>2048×1280 @2x</b>, then stamps them
+    with <code>kDisplayModeValidForMirroringFlag</code> and never returns them from the public API.
+    That is why System Settings stops at the panel size. The panel can do it; the cut-off is
+    Apple's choice.</p>
+    <p>FineDisplay reads the full table with WindowServer's own calls (SkyLight
+    <code>CGSGetDisplayModeDescriptionOfLength</code>) and switches with
+    <code>CGSConfigureDisplayMode</code>. WindowServer accepts it. Everything after that is the
+    standard macOS Retina pipeline. Apple's own override file for the 13" MacBook Air (same
+    2560×1600 panel) lists the same resolutions with the same flags.</p>
+    <p class="fine">Full investigation log:
+    <a href="https://github.com/ofbakirci/finedisplay/blob/main/docs/how-it-works.md">docs/how-it-works.md</a></p>
+  </section>
+
+  <section class="rules">
+    <h2>Plain talk</h2>
+    <ul>
+      <li><b>It uses private API.</b> Apple can change it. The app checks the symbols at launch;
+        if they are gone it refuses to run and leaves your display alone.</li>
+      <li><b>It only enables modes that exist.</b> If macOS did not generate hidden HiDPI modes
+        for a display, FineDisplay cannot invent them. If <code>finedisplay list</code> shows no ★,
+        BetterDisplay's virtual-display route is still an option.</li>
+      <li><b>It costs GPU.</b> Rendering 4096×2560 is not free. Apple Silicon does not notice;
+        old Intel GPUs may stutter.</li>
+      <li class="w"><b>If you change the mode in System Settings</b> that wins until the next
+        reconnect. Pick the mode in FineDisplay to make it stick.</li>
+    </ul>
+  </section>
+
+  <section class="changelog" id="changelog">
+    <h2>Release notes</h2>
+    <div class="release-list">
+      <article class="release current">
+        <div class="release-head">
+          <h3><a href="../dl/FineDisplay-1.0.0.zip">v1.0.0</a><span class="badge">current</span></h3>
+          <time datetime="2026-08-19">19 August 2026</time>
+        </div>
+        <ul>
+          <li>First release: menu bar app that lists and switches to hidden HiDPI modes.</li>
+          <li>Per-display memory; automatic re-apply on reconnect and wake.</li>
+          <li>Launch at login option; <code>finedisplay</code> command-line tool.</li>
+          <li>Universal binary (Apple Silicon + Intel), macOS 13+. Verified on macOS 15.7 Sequoia.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="install" id="install">
+    <h2>Install</h2>
+    <ol class="steps">
+      <li>Download <a href="../dl/FineDisplay-1.0.0.zip">FineDisplay-1.0.0.zip</a>, unzip, move <b>FineDisplay.app</b> to Applications.</li>
+      <li>Open it. If macOS says it "cannot verify" the app: <b>System Settings → Privacy &amp; Security</b>, scroll down, <b>Open Anyway</b>.</li>
+      <li>Click the monitor icon in the menu bar. Pick a ★ HiDPI mode for your external display. Done.</li>
+    </ol>
+    <p><b style="color:#fff">Command line:</b> inside the app at
+    <code>FineDisplay.app/Contents/Resources/bin/finedisplay</code>, or as a separate zip:
+    <a href="../dl/finedisplay-cli-1.0.0.zip">finedisplay-cli-1.0.0.zip</a></p>
+<pre><code>finedisplay list                 <span class="c"># displays and modes; ★ = hidden HiDPI</span>
+finedisplay set 2 1920x1200      <span class="c"># looks like 1920×1200, rendered at 3840×2400</span>
+finedisplay set 2 2048x1280 --hz 60
+finedisplay apply                <span class="c"># re-apply saved choices now</span></code></pre>
+    <p><b style="color:#fff">Build from source:</b></p>
+<pre><code>git clone https://github.com/ofbakirci/finedisplay
+cd finedisplay
+swift build -c release
+scripts/build-app.sh             <span class="c"># dist/FineDisplay.app</span></code></pre>
+    <p class="note">SHA-256 checksums: <a href="../dl/SHA256SUMS">SHA256SUMS</a></p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Made by <a href="https://nousworks.co">nousworks</a> ·
+    <a href="https://github.com/ofbakirci/finedisplay">ofbakirci/finedisplay</a> ·
+    icons: <a href="https://koboyo.com">koboyo</a> hand-drawn icons
+  </div>
+</footer>
+
+</body>
+</html>
