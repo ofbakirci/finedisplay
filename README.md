@@ -77,6 +77,12 @@ Requires Xcode 15+ / Swift 5.9+.
 - Rendering at 4096 × 2560 costs GPU. Apple Silicon does not notice; older Intel GPUs might.
 - Changing the mode in System Settings overrides FineDisplay until the next reconnect. Pick the mode in FineDisplay to make it stick.
 
+## Prior art
+
+Crisp, BirdHiDPI, HiDPI-Toggle and displayplacer can also select hidden WindowServer modes;
+BetterDisplay (Pro) and one-key-hidpi go through the display override plist. FineDisplay
+exists to make the hidden-mode route a free, tiny, remember-and-reapply menu bar tool.
+
 ## Credits
 
 - Icons: [koboyo](https://koboyo.com) hand-drawn icons (`monitor`, `monitor-2`, `sparkles`) — free for commercial use.

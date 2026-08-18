@@ -39,9 +39,13 @@ public struct Display: Identifiable, Hashable {
         return modes.first { $0.modeNumber == n }
     }
 
-    /// Largest pixel size macOS itself lists. Modes above this are the supersampled ones.
+    /// Physical panel size in pixels: the mode WindowServer flags as native, or else the
+    /// largest 1× mode macOS lists.
     public var nativePixelSize: (width: Int, height: Int) {
-        let listed = modes.filter { $0.isListedBySystem }
+        if let native = modes.first(where: { $0.isNative && !$0.isJunk }) {
+            return (native.pixelWidth, native.pixelHeight)
+        }
+        let listed = modes.filter { $0.isListedBySystem && !$0.isHiDPI }
         let w = listed.map(\.pixelWidth).max() ?? 0
         let h = listed.map(\.pixelHeight).max() ?? 0
         return (w, h)
