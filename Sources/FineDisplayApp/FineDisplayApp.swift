@@ -36,8 +36,8 @@ struct MenuContent: View {
     @EnvironmentObject private var state: AppState
 
     var body: some View {
-        // Read fresh every time the menu opens.
-        let displays = DisplayManager.displays()
+        // Refreshed by AppState on every display reconfiguration and after each switch.
+        let displays = state.displays
         Group {
             if displays.isEmpty {
                 Text("No displays found")
