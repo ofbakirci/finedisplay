@@ -25,7 +25,7 @@
     There is one. macOS built it, then hid it. FineDisplay shows the list and lets you pick.
     No virtual display, no mirroring, no system files, no reboot. Free and open source.</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">Download — FineDisplay 1.1.1</a>
+      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.2.0/FineDisplay-1.2.0.zip">Download — FineDisplay 1.2.0</a>
       <a class="btn ghost" href="#install">Install</a>
       <a class="btn ghost" href="#how">How it works</a>
       <a class="btn ghost" href="https://github.com/ofbakirci/finedisplay">GitHub</a>
@@ -43,6 +43,7 @@
       <div class="menu-item"><span class="tick"></span>1280 × 800 &nbsp;HiDPI <span class="dim">2560×1600</span></div>
       <div class="menu-item sub"><span class="tick"></span>Low Resolution <span class="chev">›</span></div>
       <div class="menu-slider" title="Brightness">☼<span class="track"><span class="knob"></span></span>☀</div>
+      <div class="menu-item"><span class="tick">✓</span>Match Built-in Brightness</div>
       <div class="menu-note">Panel 2560×1600 · 9 unlocked</div>
       <div class="menu-sep"></div>
       <div class="menu-item"><span class="tick"></span>Re-apply Saved Modes</div>
@@ -62,14 +63,15 @@
     </div>
     <div class="card">
       <h2>Remembers</h2>
-      <p>Your choice is stored per display. When you replug the display or the Mac wakes,
-      FineDisplay <b>re-applies it</b>. Launch at login is optional.</p>
+      <p>Mode choice and desktop position are stored per display. When you replug the
+      display or the Mac wakes, FineDisplay <b>re-applies both</b> — even when macOS
+      shuffles your arrangement. Launch at login is optional.</p>
     </div>
     <div class="card">
       <h2>Brightness too</h2>
       <p>A brightness slider per display. Hardware control (DDC/CI) where the monitor
-      supports it, automatic software dimming where it does not. No more monitor OSD
-      buttons. Works for the built-in display as well.</p>
+      supports it, automatic software dimming where it does not. And an external can
+      <b>match the built-in panel</b>: brightness keys and the ambient light sensor carry over.</p>
     </div>
     <div class="card">
       <h2>Command line included</h2>
@@ -123,7 +125,21 @@
     <div class="release-list">
       <article class="release current">
         <div class="release-head">
-          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">v1.1.1</a><span class="badge">current</span></h3>
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.2.0/FineDisplay-1.2.0.zip">v1.2.0</a><span class="badge">current</span></h3>
+          <time datetime="2026-08-29">29 August 2026</time>
+        </div>
+        <ul>
+          <li>Brightness sync: an external display can follow the built-in panel
+            ("Match Built-in Brightness" in the menu, <code>finedisplay sync</code> in the CLI).</li>
+          <li>Arrangement memory: if macOS shuffles your displays after sleep or replug,
+            FineDisplay puts them back where you had them.</li>
+          <li>"Check for Updates…": compares against the latest GitHub release and opens
+            the download page. No background installer.</li>
+        </ul>
+      </article>
+      <article class="release">
+        <div class="release-head">
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">v1.1.1</a></h3>
           <time datetime="2026-08-29">29 August 2026</time>
         </div>
         <ul>
@@ -163,18 +179,19 @@
   <section class="install" id="install">
     <h2>Install</h2>
     <ol class="steps">
-      <li>Download <a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">FineDisplay-1.1.1.zip</a> (mirror: <a href="../dl/FineDisplay-1.1.1.zip">this site</a>), unzip, move <b>FineDisplay.app</b> to Applications.</li>
+      <li>Download <a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.2.0/FineDisplay-1.2.0.zip">FineDisplay-1.2.0.zip</a> (mirror: <a href="../dl/FineDisplay-1.2.0.zip">this site</a>), unzip, move <b>FineDisplay.app</b> to Applications.</li>
       <li>Open it. The app is notarized by Apple; it opens without warnings.</li>
       <li>Click the monitor icon in the menu bar. Pick a ★ HiDPI mode for your external display. Done.</li>
     </ol>
     <p><b style="color:#fff">Command line:</b> inside the app at
     <code>FineDisplay.app/Contents/Resources/bin/finedisplay</code>, or as a separate zip:
-    <a href="../dl/finedisplay-cli-1.1.1.zip">finedisplay-cli-1.1.1.zip</a></p>
+    <a href="../dl/finedisplay-cli-1.2.0.zip">finedisplay-cli-1.2.0.zip</a></p>
 <pre><code>finedisplay list                 <span class="c"># displays and modes; ★ = hidden HiDPI</span>
 finedisplay set 2 1920x1200      <span class="c"># looks like 1920×1200, rendered at 3840×2400</span>
 finedisplay set 2 2048x1280 --hz 60
 finedisplay apply                <span class="c"># re-apply saved choices now</span>
-finedisplay brightness 2 40      <span class="c"># external display to 40% brightness</span></code></pre>
+finedisplay brightness 2 40      <span class="c"># external display to 40% brightness</span>
+finedisplay sync 2 on            <span class="c"># follow the built-in panel's brightness</span></code></pre>
     <p><b style="color:#fff">Build from source:</b></p>
 <pre><code>git clone https://github.com/ofbakirci/finedisplay
 cd finedisplay

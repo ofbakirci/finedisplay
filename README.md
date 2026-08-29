@@ -13,7 +13,9 @@ Made by [nousworks](https://nousworks.co) · [finedisplay.nousworks.co](https://
 
 - Menu bar app: pick a mode per display. ★ marks the modes macOS hides.
 - Brightness slider per display: DDC/CI for external monitors (Apple Silicon), the system route for built-in and Apple displays, and automatic software dimming for monitors without working DDC.
-- Remembers your choice per display. Re-applies it when the display reconnects or the Mac wakes.
+- Brightness sync: an external display can follow the built-in panel — brightness keys, the ambient light sensor, and Control Center all carry over.
+- Remembers your choice per display — mode and desktop position. Re-applies both when the display reconnects or the Mac wakes.
+- Update check without update machinery: the app asks GitHub for the latest release and offers the download page. No background installer.
 - Optional launch at login.
 - `finedisplay` command-line tool for scripts.
 - Universal binary (Apple Silicon + Intel). macOS 13 Ventura or later. Tested on macOS 15 Sequoia (Apple Silicon).
@@ -41,6 +43,7 @@ finedisplay forget 2
 finedisplay brightness        # brightness of every display
 finedisplay brightness 2 40   # external display to 40%
 finedisplay brightness 2 +10
+finedisplay sync 2 on         # display 2 follows the built-in panel's brightness
 ```
 
 ## How it works

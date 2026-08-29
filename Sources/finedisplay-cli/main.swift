@@ -14,8 +14,11 @@ USAGE
   finedisplay forget <display>      Remove the saved choice for a display
   finedisplay saved                 Show saved choices
   finedisplay brightness [<display>] [<0-100>|+N|-N]
-                                    Show or set hardware brightness (DDC/CI on Apple Silicon,
-                                    DisplayServices for Apple panels)
+                                    Show or set brightness (DDC/CI, Apple panels, or
+                                    software dimming — picked automatically)
+  finedisplay sync [<display> on|off]
+                                    Make an external display follow the built-in panel's
+                                    brightness (needs the FineDisplay app running)
   finedisplay --version
 
 EXAMPLES
@@ -203,6 +206,35 @@ case "brightness", "br":
             print("\(d.name): set to \(target)%")
         }
     }
+
+case "sync":
+    let displays = DisplayManager.displays()
+    if args.isEmpty {
+        let externals = displays.enumerated().filter { !$0.element.isBuiltin }
+        if externals.isEmpty { print("No external displays.") }
+        for (i, d) in externals {
+            print("[\(i + 1)] \(d.name): sync \(Preferences.shared.syncEnabled(for: d.uuid) ? "on" : "off")")
+        }
+        break
+    }
+    guard args.count >= 2, ["on", "off"].contains(args[1]) else { fail(usage, code: 2) }
+    guard let d = findDisplay(args[0], in: displays) else { fail("No such display: \(args[0])") }
+    guard !d.isBuiltin else { fail("\(d.name) is the built-in display — sync makes externals follow it.") }
+    let turningOn = args[1] == "on"
+    Preferences.shared.setSyncEnabled(turningOn, for: d.uuid)
+    DistributedNotificationCenter.default().postNotificationName(
+        Notification.Name(FineDisplayInfo.prefsChangedNotification), object: nil, userInfo: nil, deliverImmediately: true)
+    var note = ""
+    if turningOn {
+        if !NSRunningApplication.runningApplications(withBundleIdentifier: FineDisplayInfo.bundleIdentifier).isEmpty {
+            if !displays.contains(where: \.isBuiltin) {
+                note = " — no built-in display is online right now; following starts when one is"
+            }
+        } else {
+            note = " — the FineDisplay app is not running, so nothing will follow until it is"
+        }
+    }
+    print("\(d.name): sync \(args[1])\(note)")
 
 case "help", "--help", "-h":
     print(usage)

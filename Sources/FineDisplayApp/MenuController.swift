@@ -72,6 +72,9 @@ final class MenuController: NSObject, NSMenuDelegate {
         menu.addItem(login)
 
         menu.addItem(.separator())
+        let updates = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+        updates.target = self
+        menu.addItem(updates)
         let about = NSMenuItem(title: "About FineDisplay \(FineDisplayInfo.version)…", action: #selector(openAbout), keyEquivalent: "")
         about.target = self
         menu.addItem(about)
@@ -107,6 +110,14 @@ final class MenuController: NSObject, NSMenuDelegate {
         }
         if let item = brightnessItem(for: display) {
             menu.addItem(item)
+            if !display.isBuiltin, DisplayManager.displays().contains(where: \.isBuiltin) {
+                let sync = NSMenuItem(title: "Match Built-in Brightness", action: #selector(toggleSync(_:)), keyEquivalent: "")
+                sync.target = self
+                sync.representedObject = display.uuid
+                sync.state = Preferences.shared.syncEnabled(for: display.uuid) ? .on : .off
+                sync.toolTip = "Follow the MacBook panel's brightness — keys, ambient sensor, Control Center all carry over."
+                menu.addItem(sync)
+            }
         }
         if let saved = Preferences.shared.choice(for: display.uuid) {
             let forget = NSMenuItem(title: "Forget Saved Choice (\(saved.label))", action: #selector(forgetChoice(_:)), keyEquivalent: "")
@@ -227,6 +238,18 @@ final class MenuController: NSObject, NSMenuDelegate {
         guard let slider = sender as? BrightnessSlider, let display = slider.display else { return }
         BrightnessManager.shared.setBrightness(Int(slider.doubleValue.rounded()), for: display)
         slider.enclosingMenuItem?.title = "Brightness: \(Int(slider.doubleValue.rounded()))%"
+    }
+
+    @objc private func toggleSync(_ sender: NSMenuItem) {
+        guard let uuid = sender.representedObject as? String else { return }
+        let on = !Preferences.shared.syncEnabled(for: uuid)
+        Preferences.shared.setSyncEnabled(on, for: uuid)
+        sender.state = on ? .on : .off
+        if on { BrightnessSync.shared.applyNow() }
+    }
+
+    @objc private func checkForUpdates() {
+        UpdateChecker.shared.check(manual: true)
     }
 
     @objc private func forgetChoice(_ sender: NSMenuItem) {

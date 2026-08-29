@@ -130,3 +130,22 @@ Gamma state belongs to the setting process: it resets when that process exits, o
 reconnect, wake, and mode changes. The menu bar app therefore owns it (re-applying via the
 Enforcer's onChange hook), and the CLI delegates with a distributed notification
 (`co.nousworks.finedisplay.setBrightness`, object "displayUUID:percent").
+
+## Brightness sync and arrangement memory (1.2.0)
+
+**Sync:** `DisplayServicesRegisterForBrightnessChangeNotifications(id, id, callback)`
+(private DisplayServices, resolved with dlsym) delivers a CFNotification named
+`DisplayServicesBrightness` with `{value: 0–1}` whenever the built-in panel's brightness
+changes — keys, ambient light sensor, Control Center alike. Verified on macOS 15.7.
+FineDisplay maps the value 1:1 onto every external marked "Match Built-in Brightness"
+through the normal brightness path (DDC or gamma). Lunar sells this as Sync Mode.
+
+**Arrangement:** macOS sometimes forgets which side a display sits on after sleep or
+replug. FineDisplay snapshots every display's `CGDisplayBounds` origin (keyed by UUID,
+debounced 3 s) whenever the arrangement changes *outside* a 15-second settle window that
+opens on connect/disconnect/wake — changes inside the window are turbulence, not the user.
+On reconnect the Enforcer compares and, if needed, puts displays back with
+`CGConfigureDisplayOrigin` (public API). Same remember-and-reapply pattern as modes.
+
+**Update check:** one GET to GitHub's `releases/latest`, semver compare, an alert that
+opens the release page. Deliberately no Sparkle, no background installer.

@@ -26,7 +26,7 @@
     listeyi açar, sen seçersin. Sanal ekran yok, mirror yok, sistem dosyası yok,
     yeniden başlatma yok. Ücretsiz ve açık kaynak.</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">İndir — FineDisplay 1.1.1</a>
+      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.2.0/FineDisplay-1.2.0.zip">İndir — FineDisplay 1.2.0</a>
       <a class="btn ghost" href="#kurulum">Kurulum</a>
       <a class="btn ghost" href="#nasil">Nasıl çalışır?</a>
       <a class="btn ghost" href="https://github.com/ofbakirci/finedisplay">GitHub</a>
@@ -44,6 +44,7 @@
       <div class="menu-item"><span class="tick"></span>1280 × 800 &nbsp;HiDPI <span class="dim">2560×1600</span></div>
       <div class="menu-item sub"><span class="tick"></span>Low Resolution <span class="chev">›</span></div>
       <div class="menu-slider" title="Brightness">☼<span class="track"><span class="knob"></span></span>☀</div>
+      <div class="menu-item"><span class="tick">✓</span>Match Built-in Brightness</div>
       <div class="menu-note">Panel 2560×1600 · 9 unlocked</div>
       <div class="menu-sep"></div>
       <div class="menu-item"><span class="tick"></span>Re-apply Saved Modes</div>
@@ -63,14 +64,15 @@
     </div>
     <div class="card">
       <h2>Hatırlar</h2>
-      <p>Seçimini ekrana özel saklar. Ekranı çıkarıp taktığında ya da Mac
-      uyandığında <b>kendisi yeniden uygular</b>. İstersen girişte açılır.</p>
+      <p>Mod seçimini ve ekranın masaüstündeki yerini ekrana özel saklar. Ekranı çıkarıp
+      taktığında ya da Mac uyandığında <b>ikisini de kendisi yeniden uygular</b> —
+      macOS ekranların yerini karıştırsa bile. İstersen girişte açılır.</p>
     </div>
     <div class="card">
       <h2>Parlaklık da elinde</h2>
       <p>Her ekran için menüde parlaklık kaydırıcısı. Destekleyen monitörlerde donanım
-      (DDC/CI), desteklemeyenlerde otomatik yazılımsal karartma. Monitörün OSD
-      menüsüyle uğraşma. Dahili ekran için de çalışır.</p>
+      (DDC/CI), desteklemeyenlerde otomatik yazılımsal karartma. İstersen harici ekran
+      <b>dahili ekranı takip eder</b>: parlaklık tuşları, ortam ışığı sensörü, hepsi geçer.</p>
     </div>
     <div class="card">
       <h2>Komut satırı da var</h2>
@@ -124,7 +126,21 @@
     <div class="release-list">
       <article class="release current">
         <div class="release-head">
-          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">v1.1.1</a><span class="badge">güncel</span></h3>
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.2.0/FineDisplay-1.2.0.zip">v1.2.0</a><span class="badge">güncel</span></h3>
+          <time datetime="2026-08-29">29 Ağustos 2026</time>
+        </div>
+        <ul>
+          <li>Parlaklık senkronu: harici ekran dahili ekranın parlaklığını takip edebilir
+            (menüde "Match Built-in Brightness", CLI'da <code>finedisplay sync</code>).</li>
+          <li>Ekran düzeni hafızası: macOS uyku/tak-çıkar sonrası ekranların yerini
+            karıştırırsa FineDisplay kaydettiği düzeni geri getirir.</li>
+          <li>"Check for Updates…": GitHub'daki son sürümle karşılaştırır, indirme
+            sayfasını açar. Arka planda kurulum makinesi yok.</li>
+        </ul>
+      </article>
+      <article class="release">
+        <div class="release-head">
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">v1.1.1</a></h3>
           <time datetime="2026-08-29">29 Ağustos 2026</time>
         </div>
         <ul>
@@ -164,18 +180,19 @@
   <section class="install" id="kurulum">
     <h2>Kurulum</h2>
     <ol class="steps">
-      <li><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">FineDisplay-1.1.1.zip</a> dosyasını indir (yedek: <a href="dl/FineDisplay-1.1.1.zip">site kopyası</a>), aç, <b>FineDisplay.app</b>'i Uygulamalar klasörüne taşı.</li>
+      <li><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.2.0/FineDisplay-1.2.0.zip">FineDisplay-1.2.0.zip</a> dosyasını indir (yedek: <a href="dl/FineDisplay-1.2.0.zip">site kopyası</a>), aç, <b>FineDisplay.app</b>'i Uygulamalar klasörüne taşı.</li>
       <li>Aç. Uygulama Apple tarafından notarize edildi; uyarısız açılır.</li>
       <li>Menü çubuğundaki monitör simgesine tıkla. Harici ekranın için ★'lı bir HiDPI mod seç. Bitti.</li>
     </ol>
     <p><b style="color:#fff">Komut satırı:</b> uygulamanın içinde
     <code>FineDisplay.app/Contents/Resources/bin/finedisplay</code>, ya da ayrı zip:
-    <a href="dl/finedisplay-cli-1.1.1.zip">finedisplay-cli-1.1.1.zip</a></p>
+    <a href="dl/finedisplay-cli-1.2.0.zip">finedisplay-cli-1.2.0.zip</a></p>
 <pre><code>finedisplay list                 <span class="c"># ekranlar ve modlar; ★ = gizli HiDPI</span>
 finedisplay set 2 1920x1200      <span class="c"># 1920×1200 gibi görünsün, 3840×2400 çizilsin</span>
 finedisplay set 2 2048x1280 --hz 60
 finedisplay apply                <span class="c"># kayıtlı seçimleri şimdi uygula</span>
-finedisplay brightness 2 40      <span class="c"># harici ekranı %40 parlaklığa çek</span></code></pre>
+finedisplay brightness 2 40      <span class="c"># harici ekranı %40 parlaklığa çek</span>
+finedisplay sync 2 on            <span class="c"># dahili ekranın parlaklığını takip et</span></code></pre>
     <p><b style="color:#fff">Kaynaktan derleme:</b></p>
 <pre><code>git clone https://github.com/ofbakirci/finedisplay
 cd finedisplay

@@ -16,6 +16,22 @@ if CommandLine.arguments.contains("--dump-menu") {
     exit(0)
 }
 
+if CommandLine.arguments.contains("--check-updates") {
+    // Headless check for testing: print the comparison result, exit.
+    let sema = DispatchSemaphore(value: 0)
+    UpdateChecker.shared.fetchLatest { latest in
+        if let latest {
+            let newer = FineDisplayInfo.isNewer(latest.version, than: FineDisplayInfo.version)
+            print("current \(FineDisplayInfo.version), latest \(latest.version) → \(newer ? "update available" : "up to date") (\(latest.page))")
+        } else {
+            print("fetch failed")
+        }
+        sema.signal()
+    }
+    _ = sema.wait(timeout: .now() + 15)
+    exit(0)
+}
+
 if let i = CommandLine.arguments.firstIndex(of: "--login-item"), i + 1 < CommandLine.arguments.count {
     // Scriptable launch-at-login toggle: FineDisplay --login-item on|off
     setLoginItem(enable: CommandLine.arguments[i + 1] == "on")

@@ -24,11 +24,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Enforcer.shared.onChange = { [weak self] in
             // Nothing to redraw while closed; the menu rebuilds on open. But gamma-based
             // software dimming is reset by WindowServer on reconnect/wake/mode changes,
-            // and onChange fires after exactly those — put it back.
+            // and onChange fires after exactly those — put it back, and re-align any
+            // synced displays with the built-in panel.
             _ = self
             BrightnessManager.shared.reapplySoftwareDimming()
+            BrightnessSync.shared.start() // no-op unless a built-in display appeared
+            BrightnessSync.shared.applyNow()
         }
         Enforcer.shared.start()
+        BrightnessSync.shared.start()
+        UpdateChecker.shared.startDailyChecks()
 
         // The CLI cannot own software dimming (gamma dies with the process), so it asks
         // the app to do it. Object format: "displayUUID:percent".
@@ -41,6 +46,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let uuid = String(parts[0])
             guard let display = DisplayManager.displays().first(where: { $0.uuid == uuid }) else { return }
             BrightnessManager.shared.setBrightness(percent, for: display)
+        }
+
+        // CLI changed a shared preference (e.g. toggled sync): act on the new state.
+        DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name(FineDisplayInfo.prefsChangedNotification), object: nil, queue: .main
+        ) { _ in
+            BrightnessSync.shared.applyNow()
         }
     }
 

@@ -213,6 +213,7 @@ enum DisplayServicesBridge {
     typealias GetFn = @convention(c) (CGDirectDisplayID, UnsafeMutablePointer<Float>) -> Int32
     typealias SetFn = @convention(c) (CGDirectDisplayID, Float) -> Int32
     typealias ChangedFn = @convention(c) (CGDirectDisplayID, Double) -> Void
+    typealias RegisterFn = @convention(c) (CGDirectDisplayID, CGDirectDisplayID, CFNotificationCallback?) -> Int32
 
     private static let handle: UnsafeMutableRawPointer? = {
         dlopen("/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices", RTLD_NOW)
@@ -227,6 +228,7 @@ enum DisplayServicesBridge {
     static let getBrightness = symbol("DisplayServicesGetBrightness", as: GetFn.self)
     static let setBrightness = symbol("DisplayServicesSetBrightness", as: SetFn.self)
     static let brightnessChanged = symbol("DisplayServicesBrightnessChanged", as: ChangedFn.self)
+    static let registerForBrightnessChange = symbol("DisplayServicesRegisterForBrightnessChangeNotifications", as: RegisterFn.self)
 }
 
 // MARK: - DDC/CI over the DCP AV service (Apple Silicon)
