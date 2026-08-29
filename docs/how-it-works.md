@@ -84,3 +84,33 @@ generating the modes and they must be coaxed out via the override plist instead.
 Same as displayplacer's `modes_D4` (0xD4 bytes requested, 0xDC buffer):
 mode @0, flags @4, width @8, height @12, depth @16, bytesPerRow @20, refresh (u16) @0xBE,
 density (float) @0xD0. Verified on macOS 15.7.3.
+
+## Brightness (added in 1.1.0)
+
+Two routes, both resolved with `dlsym` at run time:
+
+- **Apple panels** (built-in display, Studio Display and other vendor-0x610 displays):
+  `DisplayServicesCanChangeBrightness` / `Get` / `SetBrightness` from the private
+  DisplayServices framework. Reads and writes both work.
+- **Other external monitors, Apple Silicon:** standard DDC/CI over the display's I2C
+  channel. The channel is reached through `IOAVServiceCreateWithService` on the external
+  `DCPAVServiceProxy` registry node, plus `IOAVServiceWriteI2C` / `IOAVServiceReadI2C`
+  (these live in IOKit, no headers). Set VCP feature 0x10 is the write
+  `[0x84, 0x03, 0x10, hi, lo, chk]` to chip 0x37 at data address 0x51.
+
+Matching a proxy node to a `CGDirectDisplayID`: the `AppleCLCD2` /
+`IOMobileFramebufferShim` node that precedes each proxy in registry order carries an
+`EDID UUID` whose first eight hex digits encode the EDID vendor (big-endian) and product
+(little-endian) — e.g. `1EE46021…` = vendor 0x1EE4, product 0x2160, which equals
+`CGDisplayVendorNumber` / `CGDisplayModelNumber`.
+
+Verified on the Arzopa Z1RC over USB-C DP alt mode: EDID reads at chip 0x50 return real
+EDID bytes, DDC writes are acknowledged, but every Get VCP request is answered with the
+DDC null message (`6E 80 BE`). The monitor is write-only, which several cheap and portable
+panels are. FineDisplay therefore probes readability once per connection; when reads fail
+it still writes and seeds the slider from the last value it set (stored in the prefs
+suite). The reply checksum seed for reads is 0x50 (null message: 0x50 ^ 0x6E ^ 0x80 = 0xBE,
+which matches the observed bytes).
+
+Note: the HDMI port on M1-family MacBook Pros goes through an internal DP→HDMI converter
+that is known to block DDC; USB-C/DP alt mode is the reliable path.

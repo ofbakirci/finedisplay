@@ -12,6 +12,7 @@ Made by [nousworks](https://nousworks.co) · [finedisplay.nousworks.co](https://
 ## What you get
 
 - Menu bar app: pick a mode per display. ★ marks the modes macOS hides.
+- Brightness slider per display: DDC/CI for external monitors (Apple Silicon), the system route for built-in and Apple displays.
 - Remembers your choice per display. Re-applies it when the display reconnects or the Mac wakes.
 - Optional launch at login.
 - `finedisplay` command-line tool for scripts.
@@ -37,6 +38,9 @@ finedisplay set 2 2048x1280 --hz 60
 finedisplay apply             # re-apply saved choices now
 finedisplay saved
 finedisplay forget 2
+finedisplay brightness        # brightness of every display
+finedisplay brightness 2 40   # external display to 40%
+finedisplay brightness 2 +10
 ```
 
 ## How it works
@@ -54,6 +58,10 @@ in the system is touched.
 The same mechanism is what Apple's own display override files use for the 13" MacBook Air
 (`/System/Library/Displays/Contents/Resources/Overrides/DisplayVendorID-610/DisplayProductID-a040`
 lists 3840 × 2400 for a 2560 × 1600 panel).
+
+Brightness uses two routes. Apple panels (built-in, Studio Display) go through the private
+DisplayServices framework. Other external monitors get standard DDC/CI commands (VCP code 0x10)
+over the display's I2C channel, reached through IOAVService on Apple Silicon.
 
 Details and the investigation log: [docs/how-it-works.md](docs/how-it-works.md).
 
@@ -76,6 +84,7 @@ Requires Xcode 15+ / Swift 5.9+.
 - Only modes WindowServer already generated can be enabled. If a display's table has no hidden HiDPI entries, FineDisplay cannot invent them (a virtual-display tool such as BetterDisplay can).
 - Rendering at 4096 × 2560 costs GPU. Apple Silicon does not notice; older Intel GPUs might.
 - Changing the mode in System Settings overrides FineDisplay until the next reconnect. Pick the mode in FineDisplay to make it stick.
+- Brightness depends on the monitor. Some monitors ignore DDC/CI; some apply it but never report their value back (the slider then starts from the last value FineDisplay set). The DDC route needs Apple Silicon; on Intel Macs only Apple displays are controllable.
 
 ## Prior art
 

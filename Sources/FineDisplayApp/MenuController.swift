@@ -13,6 +13,11 @@ final class MenuController: NSObject, NSMenuDelegate {
         init(_ d: CGDirectDisplayID, _ m: DisplayMode) { displayID = d; mode = m }
     }
 
+    /// Slider that knows which display it dims.
+    private final class BrightnessSlider: NSSlider {
+        var display: Display?
+    }
+
     override init() {
         super.init()
         menu.delegate = self
@@ -31,6 +36,7 @@ final class MenuController: NSObject, NSMenuDelegate {
     func rebuild() {
         menu.removeAllItems()
         let displays = DisplayManager.displays()
+        BrightnessManager.shared.prune(current: displays)
         let externals = displays.filter { !$0.isBuiltin }
         let builtins = displays.filter { $0.isBuiltin }
 
@@ -99,6 +105,9 @@ final class MenuController: NSObject, NSMenuDelegate {
             subItem.submenu = sub
             menu.addItem(subItem)
         }
+        if let item = brightnessItem(for: display) {
+            menu.addItem(item)
+        }
         if let saved = Preferences.shared.choice(for: display.uuid) {
             let forget = NSMenuItem(title: "Forget Saved Choice (\(saved.label))", action: #selector(forgetChoice(_:)), keyEquivalent: "")
             forget.target = self
@@ -148,6 +157,54 @@ final class MenuController: NSObject, NSMenuDelegate {
         return item
     }
 
+    /// A slider row, or nil when the display's brightness cannot be controlled.
+    private func brightnessItem(for display: Display) -> NSMenuItem? {
+        let capability = BrightnessManager.shared.capability(for: display)
+        let percent: Int
+        switch capability {
+        case .unsupported:
+            return nil
+        case .appleNative, .ddc(readable: true):
+            percent = BrightnessManager.shared.brightness(for: display) ?? 50
+        case .ddc(readable: false):
+            // Write-only monitor: seed from the last value FineDisplay set.
+            percent = Preferences.shared.savedBrightness(for: display.uuid) ?? 50
+        }
+
+        let container = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 26))
+        container.autoresizingMask = [.width]
+
+        let dim = NSImageView(frame: NSRect(x: 22, y: 6, width: 14, height: 14))
+        dim.image = NSImage(systemSymbolName: "sun.min", accessibilityDescription: "Dim")
+        dim.contentTintColor = .secondaryLabelColor
+        let bright = NSImageView(frame: NSRect(x: 204, y: 5, width: 16, height: 16))
+        bright.image = NSImage(systemSymbolName: "sun.max", accessibilityDescription: "Bright")
+        bright.contentTintColor = .secondaryLabelColor
+
+        let slider = BrightnessSlider(frame: NSRect(x: 40, y: 3, width: 160, height: 20))
+        slider.minValue = 0
+        slider.maxValue = 100
+        slider.doubleValue = Double(percent)
+        slider.isContinuous = true
+        slider.target = self
+        slider.action = #selector(brightnessChanged(_:))
+        slider.display = display
+        slider.autoresizingMask = [.width]
+
+        container.addSubview(dim)
+        container.addSubview(slider)
+        container.addSubview(bright)
+
+        let item = NSMenuItem(title: "Brightness: \(percent)%", action: nil, keyEquivalent: "")
+        item.view = container
+        if case .ddc(readable: false) = capability {
+            item.toolTip = "This monitor accepts brightness commands but does not report its value; the slider starts from the last value FineDisplay set."
+        } else {
+            item.toolTip = "Hardware brightness"
+        }
+        return item
+    }
+
     private func disabled(_ title: String) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         item.isEnabled = false
@@ -168,6 +225,12 @@ final class MenuController: NSObject, NSMenuDelegate {
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }
+    }
+
+    @objc private func brightnessChanged(_ sender: NSSlider) {
+        guard let slider = sender as? BrightnessSlider, let display = slider.display else { return }
+        BrightnessManager.shared.setBrightness(Int(slider.doubleValue.rounded()), for: display)
+        slider.enclosingMenuItem?.title = "Brightness: \(Int(slider.doubleValue.rounded()))%"
     }
 
     @objc private func forgetChoice(_ sender: NSMenuItem) {

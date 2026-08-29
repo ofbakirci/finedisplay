@@ -12,14 +12,19 @@ USAGE
   finedisplay apply                 Re-apply all saved choices now
   finedisplay forget <display>      Remove the saved choice for a display
   finedisplay saved                 Show saved choices
+  finedisplay brightness [<display>] [<0-100>|+N|-N]
+                                    Show or set hardware brightness (DDC/CI on Apple Silicon,
+                                    DisplayServices for Apple panels)
   finedisplay --version
 
 EXAMPLES
   finedisplay set 2 1920x1200       # "looks like 1920×1200", rendered at 3840×2400
   finedisplay set 2 2048x1280 --hz 60
+  finedisplay brightness 2 40       # external display to 40%
+  finedisplay brightness 2 +10
 """
 
-let version = "1.0.0"
+let version = FineDisplayInfo.version
 
 func fail(_ msg: String, code: Int32 = 1) -> Never {
     FileHandle.standardError.write((msg + "\n").data(using: .utf8)!)
@@ -134,6 +139,56 @@ case "saved":
     if choices.isEmpty { print("No saved choices.") }
     for (uuid, c) in choices.sorted(by: { $0.key < $1.key }) {
         print("\(names[uuid] ?? "?")  \(uuid)  →  \(c.label) @ \(c.refreshRate) Hz")
+    }
+
+case "brightness", "br":
+    let displays = DisplayManager.displays()
+    func describe(_ d: Display) -> String {
+        switch BrightnessManager.shared.capability(for: d) {
+        case .appleNative:
+            return BrightnessManager.shared.brightness(for: d).map { "\($0)%" } ?? "?"
+        case .ddc(readable: true):
+            return BrightnessManager.shared.brightness(for: d).map { "\($0)% (DDC)" } ?? "? (DDC)"
+        case .ddc(readable: false):
+            let saved = Preferences.shared.savedBrightness(for: d.uuid).map { "\($0)%" } ?? "unknown"
+            return "\(saved) (DDC write-only; last value set by FineDisplay)"
+        case .unsupported:
+            return "not controllable"
+        }
+    }
+    if args.isEmpty {
+        for (i, d) in displays.enumerated() {
+            print("[\(i + 1)] \(d.name): \(describe(d))")
+        }
+        break
+    }
+    guard let d = findDisplay(args[0], in: displays) else { fail("No such display: \(args[0])") }
+    guard args.count >= 2 else { print("\(d.name): \(describe(d))"); break }
+    let arg = args[1]
+    var target: Int
+    if arg.hasPrefix("+") || arg.hasPrefix("-") {
+        guard let delta = Int(arg) else { fail("Not a number: \(arg)") }
+        let current = BrightnessManager.shared.brightness(for: d) ?? 50
+        target = current + delta
+    } else {
+        guard let v = Int(arg) else { fail("Not a number: \(arg)") }
+        target = v
+    }
+    target = min(100, max(0, target))
+    switch BrightnessManager.shared.capability(for: d) {
+    case .unsupported:
+        fail("\(d.name): brightness is not controllable (no DDC path; on Intel Macs only Apple displays work)")
+    case .appleNative, .ddc:
+        BrightnessManager.shared.setBrightness(target, for: d)
+        // DDC writes are queued; give the serial queue a moment before exiting.
+        Thread.sleep(forTimeInterval: 0.15)
+        if case .ddc(readable: true) = BrightnessManager.shared.capability(for: d) {
+            Thread.sleep(forTimeInterval: 0.1)
+            let readBack = BrightnessManager.shared.brightness(for: d)
+            print("\(d.name): set to \(target)%\(readBack.map { ", monitor reports \($0)%" } ?? "")")
+        } else {
+            print("\(d.name): set to \(target)%")
+        }
     }
 
 case "help", "--help", "-h":

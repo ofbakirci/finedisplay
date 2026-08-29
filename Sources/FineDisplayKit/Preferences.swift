@@ -8,6 +8,7 @@ public final class Preferences {
     private let defaults: UserDefaults
     private let choicesKey = "choices"
     private let namesKey = "displayNames"
+    private let brightnessKey = "brightness"
 
     public init(defaults: UserDefaults? = nil) {
         self.defaults = defaults ?? UserDefaults(suiteName: Preferences.suiteName) ?? .standard
@@ -41,6 +42,18 @@ public final class Preferences {
         displayNames = n
     }
 
+    /// Last brightness set over DDC, keyed by display UUID. Seeds the slider for
+    /// monitors that accept DDC writes but never answer reads.
+    public func savedBrightness(for uuid: String) -> Int? {
+        (defaults.dictionary(forKey: brightnessKey) as? [String: Int])?[uuid]
+    }
+
+    public func saveBrightness(_ percent: Int, for uuid: String) {
+        var d = defaults.dictionary(forKey: brightnessKey) as? [String: Int] ?? [:]
+        d[uuid] = percent
+        defaults.set(d, forKey: brightnessKey)
+    }
+
     public func forget(_ uuid: String) {
         var c = choices
         c.removeValue(forKey: uuid)
@@ -48,5 +61,8 @@ public final class Preferences {
         var n = displayNames
         n.removeValue(forKey: uuid)
         displayNames = n
+        var b = defaults.dictionary(forKey: brightnessKey) as? [String: Int] ?? [:]
+        b.removeValue(forKey: uuid)
+        defaults.set(b, forKey: brightnessKey)
     }
 }
