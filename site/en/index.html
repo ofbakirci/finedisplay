@@ -25,7 +25,7 @@
     There is one. macOS built it, then hid it. FineDisplay shows the list and lets you pick.
     No virtual display, no mirroring, no system files, no reboot. Free and open source.</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">Download — FineDisplay 1.1.0</a>
+      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">Download — FineDisplay 1.1.1</a>
       <a class="btn ghost" href="#install">Install</a>
       <a class="btn ghost" href="#how">How it works</a>
       <a class="btn ghost" href="https://github.com/ofbakirci/finedisplay">GitHub</a>
@@ -67,9 +67,9 @@
     </div>
     <div class="card">
       <h2>Brightness too</h2>
-      <p>Set your external display's hardware brightness with a slider in the menu
-      (DDC/CI on Apple Silicon). No more monitor OSD buttons. Works for the built-in
-      display as well.</p>
+      <p>A brightness slider per display. Hardware control (DDC/CI) where the monitor
+      supports it, automatic software dimming where it does not. No more monitor OSD
+      buttons. Works for the built-in display as well.</p>
     </div>
     <div class="card">
       <h2>Command line included</h2>
@@ -111,9 +111,10 @@
         old Intel GPUs may stutter.</li>
       <li class="w"><b>If you change the mode in System Settings</b> that wins until the next
         reconnect. Pick the mode in FineDisplay to make it stick.</li>
-      <li><b>Brightness depends on the monitor.</b> Not every monitor obeys DDC/CI commands.
-        Some obey but never report their value; the slider then starts from the last value you
-        set. The DDC route for external displays needs Apple Silicon.</li>
+      <li><b>The brightness route depends on the monitor.</b> If it answers DDC/CI, FineDisplay
+        drives real (hardware) brightness. If it does not — many portable panels do not —
+        FineDisplay dims the image in software (gamma): the picture darkens, the backlight does
+        not, and the effect ends when the app quits. The hardware route needs Apple Silicon.</li>
     </ul>
   </section>
 
@@ -122,7 +123,19 @@
     <div class="release-list">
       <article class="release current">
         <div class="release-head">
-          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">v1.1.0</a><span class="badge">current</span></h3>
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">v1.1.1</a><span class="badge">current</span></h3>
+          <time datetime="2026-08-29">29 August 2026</time>
+        </div>
+        <ul>
+          <li>Software dimming (gamma) for monitors that do not answer DDC/CI — the same
+            method as BetterDisplay's software dimming. The slider now works on every monitor.</li>
+          <li>Fixed the brightness slider layout in the menu.</li>
+          <li>Calibration profiles are preserved; 100% restores the profile exactly.</li>
+        </ul>
+      </article>
+      <article class="release">
+        <div class="release-head">
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">v1.1.0</a></h3>
           <time datetime="2026-08-29">29 August 2026</time>
         </div>
         <ul>
@@ -150,13 +163,13 @@
   <section class="install" id="install">
     <h2>Install</h2>
     <ol class="steps">
-      <li>Download <a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">FineDisplay-1.1.0.zip</a> (mirror: <a href="../dl/FineDisplay-1.1.0.zip">this site</a>), unzip, move <b>FineDisplay.app</b> to Applications.</li>
+      <li>Download <a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">FineDisplay-1.1.1.zip</a> (mirror: <a href="../dl/FineDisplay-1.1.1.zip">this site</a>), unzip, move <b>FineDisplay.app</b> to Applications.</li>
       <li>Open it. The app is notarized by Apple; it opens without warnings.</li>
       <li>Click the monitor icon in the menu bar. Pick a ★ HiDPI mode for your external display. Done.</li>
     </ol>
     <p><b style="color:#fff">Command line:</b> inside the app at
     <code>FineDisplay.app/Contents/Resources/bin/finedisplay</code>, or as a separate zip:
-    <a href="../dl/finedisplay-cli-1.1.0.zip">finedisplay-cli-1.1.0.zip</a></p>
+    <a href="../dl/finedisplay-cli-1.1.1.zip">finedisplay-cli-1.1.1.zip</a></p>
 <pre><code>finedisplay list                 <span class="c"># displays and modes; ★ = hidden HiDPI</span>
 finedisplay set 2 1920x1200      <span class="c"># looks like 1920×1200, rendered at 3840×2400</span>
 finedisplay set 2 2048x1280 --hz 60

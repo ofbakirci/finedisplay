@@ -26,7 +26,7 @@
     listeyi açar, sen seçersin. Sanal ekran yok, mirror yok, sistem dosyası yok,
     yeniden başlatma yok. Ücretsiz ve açık kaynak.</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">İndir — FineDisplay 1.1.0</a>
+      <a class="btn primary" href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">İndir — FineDisplay 1.1.1</a>
       <a class="btn ghost" href="#kurulum">Kurulum</a>
       <a class="btn ghost" href="#nasil">Nasıl çalışır?</a>
       <a class="btn ghost" href="https://github.com/ofbakirci/finedisplay">GitHub</a>
@@ -68,8 +68,9 @@
     </div>
     <div class="card">
       <h2>Parlaklık da elinde</h2>
-      <p>Harici ekranın donanım parlaklığını menüdeki kaydırıcıyla ayarla (Apple Silicon,
-      DDC/CI). Monitörün OSD menüsüyle uğraşma. Dahili ekran için de çalışır.</p>
+      <p>Her ekran için menüde parlaklık kaydırıcısı. Destekleyen monitörlerde donanım
+      (DDC/CI), desteklemeyenlerde otomatik yazılımsal karartma. Monitörün OSD
+      menüsüyle uğraşma. Dahili ekran için de çalışır.</p>
     </div>
     <div class="card">
       <h2>Komut satırı da var</h2>
@@ -111,9 +112,10 @@
         eski Intel GPU'larda titreme olabilir.</li>
       <li class="w"><b>Sistem Ayarları'ndan mod değiştirirsen</b> bir sonraki bağlantıya kadar o
         geçerli olur. Kalıcı olsun istediğin modu FineDisplay'den seç.</li>
-      <li><b>Parlaklık monitöre bağlı.</b> DDC/CI komutlarını her monitör uygulamaz; bazıları
-        uygular ama değerini geri bildirmez (kaydırıcı o zaman son ayarladığın değerden başlar).
-        Harici ekranlarda DDC yolu Apple Silicon gerektirir.</li>
+      <li><b>Parlaklığın yolu monitöre bağlı.</b> Monitör DDC/CI'a cevap veriyorsa gerçek
+        (donanım) parlaklık kontrol edilir. Vermiyorsa — birçok taşınabilir panel vermez —
+        FineDisplay görüntüyü yazılımla karartır (gamma): görüntü kararır, arka ışık değişmez,
+        uygulama kapanınca etki biter. Donanım yolu Apple Silicon gerektirir.</li>
     </ul>
   </section>
 
@@ -122,7 +124,19 @@
     <div class="release-list">
       <article class="release current">
         <div class="release-head">
-          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">v1.1.0</a><span class="badge">güncel</span></h3>
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">v1.1.1</a><span class="badge">güncel</span></h3>
+          <time datetime="2026-08-29">29 Ağustos 2026</time>
+        </div>
+        <ul>
+          <li>DDC/CI'a cevap vermeyen monitörler için yazılımsal karartma (gamma) —
+            BetterDisplay'in software dimming'iyle aynı yöntem. Kaydırıcı artık her monitörde iş yapıyor.</li>
+          <li>Parlaklık kaydırıcısının menüdeki yerleşimi düzeltildi.</li>
+          <li>Kalibrasyon profilleri korunuyor; %100 profili birebir geri yükler.</li>
+        </ul>
+      </article>
+      <article class="release">
+        <div class="release-head">
+          <h3><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">v1.1.0</a></h3>
           <time datetime="2026-08-29">29 Ağustos 2026</time>
         </div>
         <ul>
@@ -150,13 +164,13 @@
   <section class="install" id="kurulum">
     <h2>Kurulum</h2>
     <ol class="steps">
-      <li><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.0/FineDisplay-1.1.0.zip">FineDisplay-1.1.0.zip</a> dosyasını indir (yedek: <a href="dl/FineDisplay-1.1.0.zip">site kopyası</a>), aç, <b>FineDisplay.app</b>'i Uygulamalar klasörüne taşı.</li>
+      <li><a href="https://github.com/ofbakirci/finedisplay/releases/download/v1.1.1/FineDisplay-1.1.1.zip">FineDisplay-1.1.1.zip</a> dosyasını indir (yedek: <a href="dl/FineDisplay-1.1.1.zip">site kopyası</a>), aç, <b>FineDisplay.app</b>'i Uygulamalar klasörüne taşı.</li>
       <li>Aç. Uygulama Apple tarafından notarize edildi; uyarısız açılır.</li>
       <li>Menü çubuğundaki monitör simgesine tıkla. Harici ekranın için ★'lı bir HiDPI mod seç. Bitti.</li>
     </ol>
     <p><b style="color:#fff">Komut satırı:</b> uygulamanın içinde
     <code>FineDisplay.app/Contents/Resources/bin/finedisplay</code>, ya da ayrı zip:
-    <a href="dl/finedisplay-cli-1.1.0.zip">finedisplay-cli-1.1.0.zip</a></p>
+    <a href="dl/finedisplay-cli-1.1.1.zip">finedisplay-cli-1.1.1.zip</a></p>
 <pre><code>finedisplay list                 <span class="c"># ekranlar ve modlar; ★ = gizli HiDPI</span>
 finedisplay set 2 1920x1200      <span class="c"># 1920×1200 gibi görünsün, 3840×2400 çizilsin</span>
 finedisplay set 2 2048x1280 --hz 60

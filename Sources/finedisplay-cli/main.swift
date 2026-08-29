@@ -1,3 +1,4 @@
+import AppKit
 import FineDisplayKit
 import Foundation
 
@@ -147,11 +148,11 @@ case "brightness", "br":
         switch BrightnessManager.shared.capability(for: d) {
         case .appleNative:
             return BrightnessManager.shared.brightness(for: d).map { "\($0)%" } ?? "?"
-        case .ddc(readable: true):
+        case .ddc:
             return BrightnessManager.shared.brightness(for: d).map { "\($0)% (DDC)" } ?? "? (DDC)"
-        case .ddc(readable: false):
-            let saved = Preferences.shared.savedBrightness(for: d.uuid).map { "\($0)%" } ?? "unknown"
-            return "\(saved) (DDC write-only; last value set by FineDisplay)"
+        case .software:
+            let saved = BrightnessManager.shared.brightness(for: d) ?? 100
+            return "\(saved)% (software dimming; monitor has no working DDC)"
         case .unsupported:
             return "not controllable"
         }
@@ -177,12 +178,24 @@ case "brightness", "br":
     target = min(100, max(0, target))
     switch BrightnessManager.shared.capability(for: d) {
     case .unsupported:
-        fail("\(d.name): brightness is not controllable (no DDC path; on Intel Macs only Apple displays work)")
+        fail("\(d.name): brightness is not controllable")
+    case .software:
+        // Gamma dimming dies with the process; the menu bar app must own it.
+        Preferences.shared.saveBrightness(target, for: d.uuid)
+        let appRunning = !NSRunningApplication.runningApplications(withBundleIdentifier: FineDisplayInfo.bundleIdentifier).isEmpty
+        if appRunning {
+            DistributedNotificationCenter.default().postNotificationName(
+                Notification.Name(BrightnessManager.setBrightnessNotification),
+                object: "\(d.uuid):\(target)", userInfo: nil, deliverImmediately: true)
+            print("\(d.name): set to \(target)% (software dimming, applied by the FineDisplay app)")
+        } else {
+            print("\(d.name): saved \(target)%, but software dimming needs the FineDisplay app running. Open FineDisplay.app.")
+        }
     case .appleNative, .ddc:
         BrightnessManager.shared.setBrightness(target, for: d)
         // DDC writes are queued; give the serial queue a moment before exiting.
         Thread.sleep(forTimeInterval: 0.15)
-        if case .ddc(readable: true) = BrightnessManager.shared.capability(for: d) {
+        if case .ddc = BrightnessManager.shared.capability(for: d) {
             Thread.sleep(forTimeInterval: 0.1)
             let readBack = BrightnessManager.shared.brightness(for: d)
             print("\(d.name): set to \(target)%\(readBack.map { ", monitor reports \($0)%" } ?? "")")

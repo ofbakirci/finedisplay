@@ -114,3 +114,19 @@ which matches the observed bytes).
 
 Note: the HDMI port on M1-family MacBook Pros goes through an internal DP→HDMI converter
 that is known to block DDC; USB-C/DP alt mode is the reliable path.
+
+### Software dimming fallback (1.1.1)
+
+Field result from the Arzopa Z1RC: it ACKs DDC writes but neither reads nor writes have
+any effect — the DDC engine is a stub (ddcutil issue #307 reports the same for other
+Arzopa panels). BetterDisplay "controls" such monitors with gamma-table scaling, which its
+binary confirms (`CGSetDisplayTransferByTable`, "Software gamma" strings). FineDisplay
+1.1.1 does the same: if a monitor nulls the probe read, the slider drives
+`CGSetDisplayTransferByTable` with the ColorSync ramp scaled by `0.08 + 0.92 × percent`.
+The original ramp is cached per display so calibration profiles survive and 100% restores
+them exactly.
+
+Gamma state belongs to the setting process: it resets when that process exits, on
+reconnect, wake, and mode changes. The menu bar app therefore owns it (re-applying via the
+Enforcer's onChange hook), and the CLI delegates with a distributed notification
+(`co.nousworks.finedisplay.setBrightness`, object "displayUUID:percent").

@@ -4,21 +4,30 @@ import IOKit
 
 /// Brightness control for displays.
 ///
-/// Two backends, both resolved at runtime like SkyLight.swift:
+/// Three backends, tried in order:
 ///  - Apple displays (built-in panel, Studio Display, …): private DisplayServices framework.
-///  - Other external displays on Apple Silicon: DDC/CI over the DCP AV service
-///    (IOAVServiceWriteI2C / IOAVServiceReadI2C, VCP code 0x10).
+///  - External displays whose DDC/CI answers reads: DDC over the DCP AV service on
+///    Apple Silicon (IOAVServiceWriteI2C / IOAVServiceReadI2C, VCP code 0x10).
+///  - Everything else: software dimming — the display's gamma table is scaled down,
+///    the same fallback BetterDisplay and Lunar use. Monitors that return the DDC null
+///    message for every read (several Arzopa panels, see ddcutil issue #307) land here.
 ///
-/// Some monitors apply DDC writes but never answer reads (they return the DDC null
-/// message). For those, FineDisplay still writes and remembers the last value it set.
+/// Software dimming lives in WindowServer but is tied to the setting process: it resets
+/// when that process exits, on reconnect, and on mode changes. The menu bar app owns it
+/// and re-applies it; the CLI delegates to the app via a distributed notification.
 public final class BrightnessManager {
     public static let shared = BrightnessManager()
+
+    /// Distributed notification the CLI posts; object is "displayUUID:percent".
+    public static let setBrightnessNotification = "co.nousworks.finedisplay.setBrightness"
 
     public enum Capability {
         /// DisplayServices (Apple panel). Reads and writes work.
         case appleNative
-        /// DDC/CI. `readable` is false for write-only monitors.
-        case ddc(readable: Bool)
+        /// DDC/CI, verified by a successful read.
+        case ddc
+        /// Gamma-table scaling. Works everywhere, dims the image instead of the backlight.
+        case software
         case unsupported
     }
 
@@ -51,13 +60,13 @@ public final class BrightnessManager {
             var v: Float = 0
             guard get(display.id, &v) == 0 else { return nil }
             return Int((v * 100).rounded())
-        case .ddc(readable: true):
+        case .ddc:
             if let svc = e.avService, let r = DDC.read(service: svc, vcp: DDC.vcpBrightness) {
                 return r.max > 0 ? Int((Double(r.current) / Double(r.max) * 100).rounded()) : r.current
             }
             return Preferences.shared.savedBrightness(for: display.uuid)
-        case .ddc(readable: false):
-            return Preferences.shared.savedBrightness(for: display.uuid)
+        case .software:
+            return Preferences.shared.savedBrightness(for: display.uuid) ?? 100
         case .unsupported:
             return nil
         }
@@ -93,8 +102,23 @@ public final class BrightnessManager {
                 _ = DDC.write(service: svc, vcp: DDC.vcpBrightness, value: UInt16(value))
             }
             Preferences.shared.saveBrightness(p, for: display.uuid)
+        case .software:
+            SoftwareDimmer.apply(percent: p, to: display.id)
+            Preferences.shared.saveBrightness(p, for: display.uuid)
         case .unsupported:
             break
+        }
+    }
+
+    /// Re-applies saved software dimming. Call after launch, wake, reconnect, and mode
+    /// changes — WindowServer resets the gamma table on all of those. Only meaningful
+    /// inside a long-lived process (the menu bar app).
+    public func reapplySoftwareDimming() {
+        for display in DisplayManager.displays() {
+            guard case .software = capability(for: display),
+                  let saved = Preferences.shared.savedBrightness(for: display.uuid),
+                  saved < 100 else { continue }
+            SoftwareDimmer.apply(percent: saved, to: display.id)
         }
     }
 
@@ -127,15 +151,58 @@ public final class BrightnessManager {
            display.isBuiltin || isAppleDisplay(display) {
             return Entry(displayID: display.id, capability: .appleNative, avService: nil)
         }
-        if !display.isBuiltin, let svc = DDC.avService(for: display) {
-            let readable = DDC.read(service: svc, vcp: DDC.vcpBrightness) != nil
-            return Entry(displayID: display.id, capability: .ddc(readable: readable), avService: svc)
+        if display.isBuiltin {
+            return Entry(displayID: display.id, capability: .unsupported, avService: nil)
         }
-        return Entry(displayID: display.id, capability: .unsupported, avService: nil)
+        // DDC only counts when the monitor answers a read; monitors that null every
+        // read (or have no AV service at all, e.g. on Intel) get software dimming.
+        if let svc = DDC.avService(for: display), DDC.read(service: svc, vcp: DDC.vcpBrightness) != nil {
+            return Entry(displayID: display.id, capability: .ddc, avService: svc)
+        }
+        return Entry(displayID: display.id, capability: .software, avService: nil)
     }
 
     private func isAppleDisplay(_ display: Display) -> Bool {
         display.vendor == 0x610 // Apple's EDID vendor id
+    }
+}
+
+// MARK: - Software dimming (gamma scaling)
+
+/// Scales the display's gamma table — the same fallback BetterDisplay and Lunar use for
+/// monitors without working DDC. Dims the rendered image, not the backlight.
+public enum SoftwareDimmer {
+    /// 0% maps to this output scale instead of full black, so the screen stays readable.
+    static let floor: Double = 0.08
+
+    /// The ColorSync ramp as it was before we first touched a display, per display.
+    /// Scaling this (instead of a synthetic linear ramp) keeps calibration profiles intact.
+    private static var originals: [CGDirectDisplayID: (r: [CGGammaValue], g: [CGGammaValue], b: [CGGammaValue])] = [:]
+    private static let lock = NSLock()
+
+    public static func apply(percent: Int, to id: CGDirectDisplayID) {
+        guard let ramp = originalRamp(for: id) else { return }
+        let p = Double(min(100, max(0, percent))) / 100
+        let scale = CGGammaValue(floor + (1 - floor) * p)
+        var r = ramp.r.map { $0 * scale }
+        var g = ramp.g.map { $0 * scale }
+        var b = ramp.b.map { $0 * scale }
+        CGSetDisplayTransferByTable(id, UInt32(r.count), &r, &g, &b)
+    }
+
+    private static func originalRamp(for id: CGDirectDisplayID) -> (r: [CGGammaValue], g: [CGGammaValue], b: [CGGammaValue])? {
+        lock.lock()
+        defer { lock.unlock() }
+        if let cached = originals[id] { return cached }
+        let capacity = CGDisplayGammaTableCapacity(id)
+        guard capacity > 0 else { return nil }
+        var r = [CGGammaValue](repeating: 0, count: Int(capacity))
+        var g = r, b = r
+        var count: UInt32 = 0
+        guard CGGetDisplayTransferByTable(id, capacity, &r, &g, &b, &count) == .success, count > 0 else { return nil }
+        let ramp = (r: Array(r.prefix(Int(count))), g: Array(g.prefix(Int(count))), b: Array(b.prefix(Int(count))))
+        originals[id] = ramp
+        return ramp
     }
 }
 

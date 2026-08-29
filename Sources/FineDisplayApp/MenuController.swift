@@ -160,28 +160,23 @@ final class MenuController: NSObject, NSMenuDelegate {
     /// A slider row, or nil when the display's brightness cannot be controlled.
     private func brightnessItem(for display: Display) -> NSMenuItem? {
         let capability = BrightnessManager.shared.capability(for: display)
-        let percent: Int
-        switch capability {
-        case .unsupported:
-            return nil
-        case .appleNative, .ddc(readable: true):
-            percent = BrightnessManager.shared.brightness(for: display) ?? 50
-        case .ddc(readable: false):
-            // Write-only monitor: seed from the last value FineDisplay set.
-            percent = Preferences.shared.savedBrightness(for: display.uuid) ?? 50
-        }
+        if case .unsupported = capability { return nil }
+        let percent = BrightnessManager.shared.brightness(for: display) ?? 50
 
         let container = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 26))
         container.autoresizingMask = [.width]
 
+        // Fixed left edge; the slider stretches; the bright icon rides the right edge.
         let dim = NSImageView(frame: NSRect(x: 22, y: 6, width: 14, height: 14))
         dim.image = NSImage(systemSymbolName: "sun.min", accessibilityDescription: "Dim")
         dim.contentTintColor = .secondaryLabelColor
-        let bright = NSImageView(frame: NSRect(x: 204, y: 5, width: 16, height: 16))
+
+        let bright = NSImageView(frame: NSRect(x: 210, y: 5, width: 16, height: 16))
         bright.image = NSImage(systemSymbolName: "sun.max", accessibilityDescription: "Bright")
         bright.contentTintColor = .secondaryLabelColor
+        bright.autoresizingMask = [.minXMargin]
 
-        let slider = BrightnessSlider(frame: NSRect(x: 40, y: 3, width: 160, height: 20))
+        let slider = BrightnessSlider(frame: NSRect(x: 42, y: 3, width: 162, height: 20))
         slider.minValue = 0
         slider.maxValue = 100
         slider.doubleValue = Double(percent)
@@ -197,9 +192,10 @@ final class MenuController: NSObject, NSMenuDelegate {
 
         let item = NSMenuItem(title: "Brightness: \(percent)%", action: nil, keyEquivalent: "")
         item.view = container
-        if case .ddc(readable: false) = capability {
-            item.toolTip = "This monitor accepts brightness commands but does not report its value; the slider starts from the last value FineDisplay set."
-        } else {
+        switch capability {
+        case .software:
+            item.toolTip = "This monitor does not answer DDC/CI, so FineDisplay dims the image in software (like BetterDisplay's software dimming)."
+        default:
             item.toolTip = "Hardware brightness"
         }
         return item
