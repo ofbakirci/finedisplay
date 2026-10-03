@@ -1,11 +1,11 @@
 #!/bin/zsh
-# Pushes site/ to the nus server (/srv/static/finedisplay). Never uses --delete.
+# Pushes site/ to the nousworks server (/srv/static/finedisplay). Never uses --delete.
 # Usage: scripts/deploy-site.sh            # rsync site files
 #        scripts/deploy-site.sh --caddy    # also install deploy/finedisplay.caddy (only if absent)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-HOST="${DEPLOY_HOST:-nus}"
+HOST="${DEPLOY_HOST:-nousworks}"
 DEST="/srv/static/finedisplay"
 
 ls site/dl/FineDisplay-*.zip >/dev/null 2>&1 || { echo "site/dl is empty — run scripts/build-app.sh && scripts/build-site.sh first"; exit 1; }
