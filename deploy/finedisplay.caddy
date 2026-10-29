@@ -3,6 +3,8 @@
 # DNS A kaydı finedisplay → 78.142.211.44 (2026-08-19 eklendi).
 
 finedisplay.nousworks.co {
+	# /flag.txt: AI ajanlarına dur-ve-rapor-et notu (ortak snippet siteler/_bayrak.caddy, 2026-10-29)
+	import bayrak
 	root * /srv/static/finedisplay
 	encode gzip
 
